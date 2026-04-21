@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>mid film — Content Studio</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+
+:root {
+  --bg: #080808;
+  --surface: #111111;
+  --surface2: #181818;
+  --border: #222;
+  --orange: #C84B0F;
+  --orange2: #E05A1A;
+  --white: #F0EDE8;
+  --dim: #666;
+  --dim2: #444;
+  --green: #2D6A4F;
+}
+
+body {
+  background: var(--bg);
+  color: var(--white);
+  font-family: 'IBM Plex Sans Arabic', sans-serif;
+  min-height: 100vh;
+}
+
+/* ─── GRAIN OVERLAY ─── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.4;
+}
+
+/* ─── HEADER ─── */
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 28px;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  background: rgba(8,8,8,0.92);
+  backdrop-filter: blur(20px);
+  z-index: 50;
+}
+
+.logo-wrap { display: flex; align-items: center; gap: 12px; }
+
+.logo {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--white);
+}
+.logo span { color: var(--orange); }
+
+.logo-sep {
+  width: 1px;
+  height: 18px;
+  background: var(--border);
+}
+
+.logo-sub {
+  font-size: 11px;
+  color: var(--dim);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.dna-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(200,75,15,0.12);
+  border: 1px solid rgba(200,75,15,0.3);
+  border-radius: 20px;
+  padding: 5px 14px;
+  font-size: 11px;
+  color: var(--orange2);
+  letter-spacing: 1px;
+}
+
+.dna-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--orange);
+  animation: blink 2s infinite;
+}
+
+@keyframes blink {
+  0%,100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+/* ─── DNA PANEL (top) ─── */
+.dna-panel {
+  background: linear-gradient(135deg, #0F0A08 0%, #130C09 100%);
+  border-bottom: 1px solid var(--border);
+  padding: 24px 28px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  position: relative;
+  overflow: hidden;
+}
+
+.dna-panel::before {
+  content: 'BUSINESS DNA';
+  position: absolute;
+  top: 16px;
+  left: 28px;
+  font-size: 9px;
+  letter-spacing: 4px;
+  color: var(--orange);
+  opacity: 0.7;
+}
+
+.dna-item {
+  padding: 28px 20px 16px;
+  border-left: 1px solid var(--border);
+}
+.dna-item:last-child { border-left: none; }
+
+.dna-label {
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--dim);
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+
+.dna-value {
+  font-size: 13px;
+  color: var(--white);
+  line-height: 1.6;
+}
+
+.color-dots {
+  display: flex;
+  gap: 6px;
+  margin-top: 4px;
+}
+.cdot {
+  width: 18px; height: 18px;
+  border-radius: 4px;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+.client-logos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+}
+.client-tag {
+  font-size: 9px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 2px 6px;
+  color: var(--dim);
+  white-space: nowrap;
+}
+
+/* ─── MAIN ─── */
+.main {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 36px 24px 80px;
+  position: relative;
+  z-index: 1;
+}
+
+/* ─── PROMPT BOX ─── */
+.prompt-wrap {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 20px;
+}
+
+.prompt-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.prompt-icon {
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  background: rgba(200,75,15,0.15);
+  border: 1px solid rgba(200,75,15,0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+}
+
+.prompt-title {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.prompt-sub {
+  font-size: 11px;
+  color: var(--dim);
+  margin-top: 1px;
+}
+
+textarea.prompt-input {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 16px;
+  color: var(--white);
+  font-family: 'IBM Plex Sans Arabic', sans-serif;
+  font-size: 14px;
+  resize: none;
+  min-height: 72px;
+  outline: none;
+  transition: border-color 0.2s;
+  direction: rtl;
+  line-height: 1.7;
+}
+textarea.prompt-input:focus { border-color: var(--orange); }
+textarea.prompt-input::placeholder { color: var(--dim2); }
+
+/* Quick prompts */
+.quick-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+}
+.qp {
+  background: transparent;
+  border: 1px dashed var(--border);
+  border-radius: 7px;
+  padding: 6px 12px;
+  font-size: 11px;
+  color: var(--dim);
+  cursor: pointer;
+  font-family: 'IBM Plex Sans Arabic', sans-serif;
+  transition: all 0.2s;
+}
+.qp:hover { border-color: var(--orange); color: var(--orange2); }
+
+/* ─── OPTIONS ROW ─── */
+.options-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.opt-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.opt-label {
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--orange);
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+
+.chips {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.chip {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 5px 10px;
+  font-size: 11px;
+  color: var(--dim);
+  cursor: pointer;
+  font-family: 'IBM Plex Sans Arabic', sans-serif;
+  transition: all 0.15s;
+}
+.chip:hover, .chip.active {
+  border-color: var(--orange);
+  color: var(--orange2);
+  background: rgba(200,75,15,0.08);
+}
+
+/* ─── GENERATE BTN ─── */
+.btn-gen {
+  width: 100%;
+  background: var(--orange);
+  border: none;
+  border-radius: 12px;
+  padding: 16px;
+  color: white;
+  font-family: 'IBM Plex Sans Arabic', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+.btn-gen::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+  transform: translateX(-100%);
+  transition: transform 0.6s;
+}
+.btn-gen:hover::before { transform: translateX(100%); }
+.btn-gen:hover:not(:disabled) {
+  background: var(--orange2);
+  box-shadow: 0 6px 24px rgba(200,75,15,0.4);
+  transform: translateY(-1px);
+}
+.btn-gen:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+
+/* ─── PIPELINE ─── */
+.pipeline {
+  display: none;
+  align-items: center;
+  gap: 0;
+  margin: 20px 0 14px;
+  overflow-x: auto;
+}
+.pipe-step {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--dim2);
+  padding: 4px 0;
+  white-space: nowrap;
+  transition: color 0.3s;
+  position: relative;
+}
+.pipe-step:not(:last-child)::after {
+  content: '→';
+  margin: 0 10px;
+  color: var(--dim2);
+  font-size: 10px;
+}
+.pipe-step.active { color: var(--orange); }
+.pipe-step.done { color: #4CAF50; }
+.pipe-num {
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  border: 1px solid currentColor;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.pipe-step.active .pipe-num {
+  background: var(--orange);
+  border-color: var(--orange);
+  color: white;
+  animation: pop 0.8s ease infinite alternate;
+}
+.pipe-step.done .pipe-num {
+  background: #2D6A4F;
+  border-color: #2D6A4F;
+  color: white;
+}
+@keyframes pop {
+  from { transform: scale(1); }
+  to { transform: scale(1.15); }
+}
+
+/* ─── STATUS ─── */
+.status {
+  display: none;
+  align-items: center;
+  gap: 10px;
+  background: rgba(200,75,15,0.07);
+  border: 1px solid rgba(200,75,15,0.18);
+  border-radius: 10px;
+  padding: 11px 16px;
+  font-size: 13px;
+  color: var(--orange2);
+  margin-bottom: 16px;
+}
+.status.show { display: flex; }
+.spin {
+  width: 13px; height: 13px;
+  border: 2px solid rgba(200,75,15,0.3);
+  border-top-color: var(--orange);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ─── OUTPUTS ─── */
+.out-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  margin-bottom: 14px;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(12px);
+  transition: all 0.4s ease;
+}
+.out-card.show { opacity: 1; transform: translateY(0); }
+
+.out-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border);
+}
+
+.out-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--white);
+}
+
+.out-ic {
+  width: 26px; height: 26px;
+  border-radius: 7px;
+  background: rgba(200,75,15,0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+}
+
+.copy-btn {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 4px 11px;
+  font-size: 10px;
+  color: var(--dim);
+  cursor: pointer;
+  font-family: 'IBM Plex Sans Arabic', sans-serif;
+  transition: all 0.2s;
+  letter-spacing: 0.5px;
+}
+.copy-btn:hover { border-color: var(--orange); color: var(--orange); }
+
+.out-body { padding: 18px; }
+
+/* Slides */
+.slides-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+}
+
+@media (max-width: 600px) {
+  .slides-grid { grid-template-columns: repeat(3, 1fr); }
+  .options-row { grid-template-columns: 1fr; }
+  .dna-panel { grid-template-columns: 1fr 1fr; }
+}
+
+.slide {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 10px;
+  aspect-ratio: 4/5;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: border-color 0.2s;
+}
+.slide:hover { border-color: rgba(200,75,15,0.4); }
+
+.slide-n {
+  font-size: 9px;
+  color: var(--orange);
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.slide-body {
+  font-size: 10px;
+  color: var(--white);
+  line-height: 1.6;
+  text-align: center;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 0;
+}
+
+.slide-type {
+  font-size: 8px;
+  color: var(--dim2);
+  direction: ltr;
+  text-align: left;
+}
+
+/* Caption */
+.caption-box {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+  font-size: 14px;
+  line-height: 2;
+  white-space: pre-wrap;
+  direction: rtl;
+  color: var(--white);
+}
+
+/* Hashtags */
+.ht-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+.ht {
+  background: rgba(200,75,15,0.08);
+  border: 1px solid rgba(200,75,15,0.2);
+  border-radius: 5px;
+  padding: 4px 10px;
+  font-size: 12px;
+  color: var(--orange2);
+  direction: ltr;
+}
+
+/* Prompts */
+.mj-prompt {
+  background: #0A0A0A;
+  border: 1px solid #1A1A1A;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 8px;
+}
+.mj-label {
+  font-size: 10px;
+  color: var(--orange);
+  letter-spacing: 1px;
+  margin-bottom: 7px;
+  font-family: 'IBM Plex Sans Arabic', sans-serif;
+}
+.mj-text {
+  font-size: 11px;
+  color: #888;
+  direction: ltr;
+  text-align: left;
+  line-height: 1.6;
+  font-family: 'Courier New', monospace;
+}
+
+/* ─── API KEY ─── */
+.apikey-wrap {
+  background: var(--surface);
+  border: 1px solid rgba(200,75,15,0.3);
+  border-radius: 12px;
+  padding: 18px;
+  margin-bottom: 16px;
+}
+.apikey-inner {}
+.apikey-wrap.saved {
+  border-color: #2D6A4F;
+  background: rgba(45,106,79,0.08);
+}
+
+/* ─── ANIMATE IN ─── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.main > * { animation: fadeUp 0.5s ease both; }
+.main > *:nth-child(1) { animation-delay: 0.05s; }
+.main > *:nth-child(2) { animation-delay: 0.1s; }
+.main > *:nth-child(3) { animation-delay: 0.15s; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo-wrap">
+    <div class="logo">mid <span>film</span></div>
+    <div class="logo-sep"></div>
+    <div class="logo-sub">Content Studio</div>
+  </div>
+  <div class="dna-badge">
+    <div class="dna-dot"></div>
+    Anthropic · DNA محلّل
+  </div>
+</header>
+
+<!-- BUSINESS DNA PANEL -->
+<div class="dna-panel">
+  <div class="dna-item">
+    <div class="dna-label">الهوية</div>
+    <div class="dna-value">شركة إنتاج سينمائي سعودية — احترافية وإبداعية</div>
+  </div>
+  <div class="dna-item">
+    <div class="dna-label">الألوان</div>
+    <div class="dna-value">
+      <div class="color-dots">
+        <div class="cdot" style="background:#C84B0F" title="برتقالي محروق"></div>
+        <div class="cdot" style="background:#080808" title="أسود"></div>
+        <div class="cdot" style="background:#F0EDE8" title="أبيض دافئ"></div>
+        <div class="cdot" style="background:#1A1A1A" title="رمادي داكن"></div>
+      </div>
+    </div>
+  </div>
+  <div class="dna-item">
+    <div class="dna-label">نبرة الصوت</div>
+    <div class="dna-value">سينمائية راقية — احترافية — إبداعية</div>
+  </div>
+  <div class="dna-item">
+    <div class="dna-label">كبار العملاء</div>
+    <div class="client-logos">
+      <span class="client-tag">STC</span>
+      <span class="client-tag">هيئة الترفيه</span>
+      <span class="client-tag">الخطوط السعودية</span>
+      <span class="client-tag">وزارة الصحة</span>
+      <span class="client-tag">وزارة الطاقة</span>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- PROMPT -->
+  <div class="prompt-wrap">
+    <div class="prompt-top">
+      <div class="prompt-icon">✦</div>
+      <div>
+        <div class="prompt-title">اكتب فكرتك</div>
+        <div class="prompt-sub">كلود يحوّلها لمحتوى انستقرام متكامل بهوية mid film</div>
+      </div>
+    </div>
+    <textarea class="prompt-input" id="promptInput" placeholder="مثال: كيف غيّر الذكاء الاصطناعي طريقة إنتاج الفيديو في السعودية..."></textarea>
+    <div class="quick-row">
+      <div class="qp" onclick="fill('الذكاء الاصطناعي في الإنتاج السينمائي السعودي')">🤖 AI + سينما</div>
+      <div class="qp" onclick="fill('أسرار الإنتاج الاحترافي من mid film')">🎬 أسرار الإنتاج</div>
+      <div class="qp" onclick="fill('كيف تختار شركة الإنتاج المناسبة لمشروعك')">🎯 اختيار شركة الإنتاج</div>
+      <div class="qp" onclick="fill('مستقبل صناعة الفيديو في رؤية 2030')">🌟 رؤية 2030 والفيديو</div>
+      <div class="qp" onclick="fill('خدمات mid film ولماذا نختلف عن غيرنا')">⚡ mid film والفرق</div>
+    </div>
+  </div>
+
+  <!-- OPTIONS -->
+  <div class="options-row">
+    <div class="opt-card">
+      <div class="opt-label">الأسلوب</div>
+      <div class="chips" id="toneChips">
+        <div class="chip active" data-v="تعليمي سلطوي">🎓 تعليمي</div>
+        <div class="chip" data-v="جريء واستفزازي">🔥 جريء</div>
+        <div class="chip" data-v="قصة شخصية">💬 قصة</div>
+        <div class="chip" data-v="نصائح عملية">⚡ نصائح</div>
+      </div>
+    </div>
+    <div class="opt-card">
+      <div class="opt-label">نوع المحتوى</div>
+      <div class="chips" id="typeChips">
+        <div class="chip active" data-v="Carousel (5 شرائح)">🎠 Carousel</div>
+        <div class="chip" data-v="منشور مفرد">📄 Post</div>
+        <div class="chip" data-v="Reel Script">🎥 Reel</div>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn-gen" id="genBtn" onclick="generate()">
+    ✦ توليد المحتوى بهوية mid film
+  </button>
+
+  <!-- PIPELINE -->
+  <div class="pipeline" id="pipeline">
+    <div class="pipe-step" id="ps1"><div class="pipe-num">1</div>الفكرة</div>
+    <div class="pipe-step" id="ps2"><div class="pipe-num">2</div>السيناريو</div>
+    <div class="pipe-step" id="ps3"><div class="pipe-num">3</div>الـ Caption</div>
+    <div class="pipe-step" id="ps4"><div class="pipe-num">4</div>Hashtags</div>
+    <div class="pipe-step" id="ps5"><div class="pipe-num">5</div>Prompts</div>
+  </div>
+
+  <!-- STATUS -->
+  <div class="status" id="status">
+    <div class="spin"></div>
+    <span id="statusTxt">يعمل...</span>
+  </div>
+
+  <!-- OUTPUTS -->
+  <div id="outputs"></div>
+
+</div>
+
+<script>
+let tone = 'تعليمي سلطوي';
+let ctype = 'Carousel (5 شرائح)';
+const API_KEY = 'gemini';
+
+
+
+document.querySelectorAll('#toneChips .chip').forEach(c => {
+  c.onclick = () => {
+    document.querySelectorAll('#toneChips .chip').forEach(x => x.classList.remove('active'));
+    c.classList.add('active');
+    tone = c.dataset.v;
+  };
+});
+
+document.querySelectorAll('#typeChips .chip').forEach(c => {
+  c.onclick = () => {
+    document.querySelectorAll('#typeChips .chip').forEach(x => x.classList.remove('active'));
+    c.classList.add('active');
+    ctype = c.dataset.v;
+  };
+});
+
+function fill(t) { document.getElementById('promptInput').value = t; }
+
+function setPS(n, state) {
+  document.getElementById('ps'+n).className = 'pipe-step ' + state;
+}
+
+function showStatus(txt) {
+  const s = document.getElementById('status');
+  s.classList.add('show');
+  document.getElementById('statusTxt').textContent = txt;
+}
+
+function hideStatus() {
+  document.getElementById('status').classList.remove('show');
+}
+
+function addCard(html, delay=0) {
+  setTimeout(() => {
+    const div = document.createElement('div');
+    div.innerHTML = html;
+    const card = div.firstElementChild;
+    document.getElementById('outputs').appendChild(card);
+    requestAnimationFrame(() => setTimeout(() => card.classList.add('show'), 30));
+  }, delay);
+}
+
+async function ai(userMsg, sys) {
+  const GEMINI_KEY = 'AIzaSyCUkeLV_aKfTnBgUKFLHMFISYXSTYUc85c';
+  const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      system_instruction: { parts: [{ text: sys }] },
+      contents: [{ parts: [{ text: userMsg }] }],
+      generationConfig: { maxOutputTokens: 1024, temperature: 0.7 }
+    })
+  });
+  const d = await r.json();
+  if (!r.ok) throw new Error(d.error?.message || 'API Error ' + r.status);
+  const text = d.candidates?.[0]?.content?.parts?.[0]?.text;
+  if (!text) throw new Error('Empty response');
+  return text;
+}
+
+const DNA = `
+أنت كاتب محتوى لـ mid film — شركة إنتاج سينمائي سعودية محترفة.
+هوية الشركة:
+- الاسم: mid film (ميد فيلم للإنتاج السينمائي)
+- التخصص: إنتاج أفلام، إعلانات، وثائقيات، برامج تلفزيونية، VFX، تصوير جوي
+- المدير التنفيذي: موسى عمر العوبثاني — خبرة 10+ سنوات
+- العملاء: STC، هيئة الترفيه، الخطوط السعودية، وزارة الصحة، وزارة الطاقة
+- النبرة: سينمائية راقية، احترافية، سعودية
+- الألوان: أسود + برتقالي محروق + أبيض دافئ
+`;
+
+async function generate() {
+  const prompt = document.getElementById('promptInput').value.trim();
+  if (!prompt) {
+    document.getElementById('promptInput').style.borderColor = 'var(--orange)';
+    document.getElementById('promptInput').placeholder = '⚠️ اكتب الفكرة أولاً...';
+    return;
+  }
+
+
+  const btn = document.getElementById('genBtn');
+  btn.disabled = true;
+  btn.textContent = '⏳ يشتغل...';
+  document.getElementById('outputs').innerHTML = '';
+  document.getElementById('pipeline').style.display = 'flex';
+
+  // Step 1: Carousel
+  setPS(1,'active'); setPS(2,''); setPS(3,''); setPS(4,''); setPS(5,'');
+  showStatus('🎬 يكتب محتوى الـ ' + ctype + '...');
+
+  let slides = null;
+  try {
+    const raw = await ai(
+      `الموضوع: ${prompt}\nالأسلوب: ${tone}\nنوع المحتوى: ${ctype}`,
+      DNA + `\nاكتب محتوى ${ctype} لانستقرام بالعامية السعودية.\nأرجع JSON فقط بدون أي نص إضافي أو backticks:\n{"s1":"hook قوي","s2":"المشكلة","s3":"الحل","s4":"مثال من mid film","s5":"CTA"}`
+    );
+    const clean = raw.replace(/```json|```/g,'').trim();
+    const jsonStart = clean.indexOf('{');
+    const jsonEnd = clean.lastIndexOf('}');
+    if (jsonStart === -1) throw new Error('No JSON in response');
+    slides = JSON.parse(clean.slice(jsonStart, jsonEnd+1));
+    setPS(1,'done'); setPS(2,'done');
+
+    addCard(`<div class="out-card">
+      <div class="out-head">
+        <div class="out-title"><div class="out-ic">🎬</div>${ctype} — محتوى الشرائح</div>
+        <button class="copy-btn" id="copySlides">نسخ</button>
+      </div>
+      <div class="out-body">
+        <div class="slides-grid">
+          <div class="slide"><div class="slide-n">01 HOOK</div><div class="slide-body">${slides.s1}</div><div class="slide-type">hook</div></div>
+          <div class="slide"><div class="slide-n">02 PROBLEM</div><div class="slide-body">${slides.s2}</div><div class="slide-type">problem</div></div>
+          <div class="slide"><div class="slide-n">03 SOLUTION</div><div class="slide-body">${slides.s3}</div><div class="slide-type">solution</div></div>
+          <div class="slide"><div class="slide-n">04 EXAMPLE</div><div class="slide-body">${slides.s4}</div><div class="slide-type">example</div></div>
+          <div class="slide" style="border-color:rgba(200,75,15,0.4)"><div class="slide-n" style="color:var(--orange)">05 CTA</div><div class="slide-body">${slides.s5}</div><div class="slide-type">outro</div></div>
+        </div>
+      </div>
+    </div>`);
+
+    document.getElementById('copySlides')?.addEventListener('click', function() {
+      const txt = `[شريحة 1]\n${slides.s1}\n\n[شريحة 2]\n${slides.s2}\n\n[شريحة 3]\n${slides.s3}\n\n[شريحة 4]\n${slides.s4}\n\n[شريحة 5]\n${slides.s5}`;
+      navigator.clipboard.writeText(txt);
+      copied(this);
+    });
+
+  } catch(e) {
+    console.error('slides:', e);
+    if (e.message === 'no_key') { alert('أدخل الـ API Key أولاً'); btn.disabled=false; btn.textContent='✦ توليد المحتوى بهوية mid film'; hideStatus(); return; }
+  }
+
+  // Step 2: Caption
+  setPS(3,'active');
+  showStatus('✍️ يكتب الـ Caption...');
+
+  let caption = '';
+  try {
+    caption = await ai(
+      `الموضوع: ${prompt}\nالأسلوب: ${tone}`,
+      DNA + `\nاكتب Caption انستقرام بالعامية السعودية الراقية لـ mid film.\nالشكل: Hook → قيمة (3-4 أسطر) → CTA\nاستخدم 2-3 emoji فقط.\nأرجع النص مباشرة بدون أي شرح.`
+    );
+    setPS(3,'done');
+
+    addCard(`<div class="out-card">
+      <div class="out-head">
+        <div class="out-title"><div class="out-ic">✍️</div>Caption الانستقرام</div>
+        <button class="copy-btn" id="copyCaption">نسخ</button>
+      </div>
+      <div class="out-body">
+        <div class="caption-box" id="captionBox">${caption}</div>
+      </div>
+    </div>`, 300);
+
+    setTimeout(() => {
+      document.getElementById('copyCaption')?.addEventListener('click', function() {
+        navigator.clipboard.writeText(caption);
+        copied(this);
+      });
+    }, 400);
+
+  } catch(e) { console.error('caption:', e); }
+
+  // Step 3: Hashtags
+  setPS(4,'active');
+  showStatus('# يولد الـ Hashtags...');
+
+  try {
+    const raw2 = await ai(
+      `الموضوع: ${prompt} — mid film السعودية`,
+      DNA + `\nاكتب 12 hashtag: 6 عربي و6 انجليزي.\nأرجع JSON فقط بدون backticks: {"tags":["#tag1","#tag2",...]}`
+    );
+    let c2 = raw2.replace(/```json|```/g,'').trim();
+    const j2s = c2.indexOf('{'); const j2e = c2.lastIndexOf('}');
+    const ht = JSON.parse(c2.slice(j2s, j2e+1));
+    setPS(4,'done');
+
+    const htHtml = ht.tags.map(t => `<div class="ht">${t}</div>`).join('');
+    addCard(`<div class="out-card">
+      <div class="out-head">
+        <div class="out-title"><div class="out-ic">#</div>Hashtags — ${ht.tags.length} وسم</div>
+        <button class="copy-btn" id="copyHT">نسخ</button>
+      </div>
+      <div class="out-body"><div class="ht-grid" id="htGrid">${htHtml}</div></div>
+    </div>`, 600);
+
+    setTimeout(() => {
+      document.getElementById('copyHT')?.addEventListener('click', function() {
+        navigator.clipboard.writeText(ht.tags.join(' '));
+        copied(this);
+      });
+    }, 700);
+
+  } catch(e) { console.error('hashtags:', e); }
+
+  // Step 4: Midjourney Prompts
+  setPS(5,'active');
+  showStatus('🎨 يولد Prompts التصميم...');
+
+  try {
+    const raw3 = await ai(
+      `الموضوع: ${prompt}`,
+      DNA + `\nاكتب 3 prompts لـ Midjourney لتصميم انستقرام بهوية mid film.\nأرجع JSON فقط بدون backticks:\n{"prompts":[{"slide":"رقم الشريحة","prompt":"..."}]}\nكل prompt بالانجليزي — استخدم: black background #080808, burnt orange #C84B0F accents, cinematic editorial style, Arabic typography concept, luxury Saudi production company, 8k --ar 4:5`
+    );
+    let c3 = raw3.replace(/```json|```/g,'').trim();
+    const j3s = c3.indexOf('{'); const j3e = c3.lastIndexOf('}');
+    const pm = JSON.parse(c3.slice(j3s, j3e+1));
+    setPS(5,'done');
+
+    const pmHtml = pm.prompts.map(p => `
+      <div class="mj-prompt">
+        <div class="mj-label">شريحة ${p.slide}</div>
+        <div class="mj-text">${p.prompt}</div>
+      </div>`).join('');
+
+    addCard(`<div class="out-card">
+      <div class="out-head">
+        <div class="out-title"><div class="out-ic">🎨</div>Midjourney Prompts — التصاميم</div>
+        <button class="copy-btn" id="copyPM">نسخ الكل</button>
+      </div>
+      <div class="out-body" id="pmBody">${pmHtml}</div>
+    </div>`, 900);
+
+    setTimeout(() => {
+      document.getElementById('copyPM')?.addEventListener('click', function() {
+        const txt = pm.prompts.map(p => `[شريحة ${p.slide}]\n${p.prompt}`).join('\n\n');
+        navigator.clipboard.writeText(txt);
+        copied(this);
+      });
+    }, 1000);
+
+  } catch(e) { console.error('prompts:', e); }
+
+  hideStatus();
+  btn.disabled = false;
+  btn.textContent = '✦ توليد محتوى جديد';
+}
+
+function copied(btn) {
+  const orig = btn.textContent;
+  btn.textContent = '✓ تم';
+  btn.style.color = '#4CAF50';
+  btn.style.borderColor = '#4CAF50';
+  setTimeout(() => {
+    btn.textContent = orig;
+    btn.style.color = '';
+    btn.style.borderColor = '';
+  }, 2000);
+}
+</script>
+</body>
+</html>
